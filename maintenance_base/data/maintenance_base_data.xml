@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+    
+        <!--SEQUENCES -->
+    
+        <record id="sequence_maintenance_installation" model="ir.sequence">
+            <field name="name">Maintenance installation</field>
+            <field name="code">maintenance.installation</field>
+            <field name="prefix">INST</field>
+            <field name="padding">5</field>
+        </record>
+        <record id="sequence_maintenance_element" model="ir.sequence">
+            <field name="name">Maintenance element</field>
+            <field name="code">maintenance.element</field>
+            <field name="prefix">ELT</field>
+            <field name="padding">5</field>
+        </record>
+        <record id="sequence_maintenance_intervention" model="ir.sequence">
+            <field name="name">Maintenance intervention</field>
+            <field name="code">maintenance.intervention</field>
+            <field name="prefix">INTER</field>
+            <field name="padding">5</field>
+        </record>
+        
+    </data>
+</odoo>

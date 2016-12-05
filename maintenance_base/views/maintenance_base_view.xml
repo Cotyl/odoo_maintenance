@@ -1,0 +1,303 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- MAINTENANCE INSTALLATION VIEWS -->
+        <record id="view_maintenance_installation_tree" model="ir.ui.view">
+            <field name="name">maintenance.installation.tree</field>
+            <field name="model">maintenance.installation</field>
+            <field name="type">tree</field>
+            <field name="arch" type="xml">
+                <tree string="Maintenance installation">
+                    <field name="code" />
+                    <field name="name" />
+                    <field name="partner_id" />
+                </tree>
+            </field>
+        </record>
+        
+        <record id="view_maintenance_installation_form" model="ir.ui.view">
+            <field name="name">maintenance.installation.form</field>
+            <field name="model">maintenance.installation</field>
+            <field name="type">form</field>
+            <field name="arch" type="xml">
+                <form string="Installation">
+                    <header>
+                        <field name="state" widget="statusbar" />
+                    </header>
+                    <sheet>
+                        <div class="oe_title">
+                            <label for="code" string="Reference" class="oe_edit_only"/>
+                            <h1><field name="code"/></h1>
+                        </div>
+                        <div class="oe_right oe_button_box">
+                        </div>
+                        <group>
+                            <group>
+                                <field name="name" />
+                                <field name="partner_id" 
+                                    context="{'default_company_type':'company'}" 
+                                    domain="[('is_company','=',True)]" 
+                                    />
+                                <field name="contact_address_id" context="{'default_parent_id':partner_id,'default_company_type':'person'}" />
+                            </group>
+                        </group>
+                        
+                        
+                        <newline />
+                        <notebook>
+                            <page string="Content">
+                                <separator string="Elements" />
+                                <field name="elements" nolabel='1'>
+                                    <tree string="Maintenance Element">
+                                        <field name="code" />
+                                        <field name="name" />
+                                        <field name="product_id" />
+                                        <field name="installation_date" />
+                                        <field name="warranty_date" />
+                                    </tree>
+                                    
+                                    <form string="Maintenance Element">
+                                        <group>
+                                            <group>
+                                                <field name="code" />
+                                                <field name="name" />
+                                            </group>
+        
+                                            <group>
+                                                <field name="installation_date" />
+                                                <field name="warranty_date" />
+                                                <field name="location" />
+                                            </group>
+                                        </group>
+                                        <separator string="Product"/>
+                                        <group>
+                                            <field name="product_id" />
+                                        </group>
+                                        <group>
+                                            <field name="description" />
+                                        </group>
+                                    </form>
+                                </field>
+                            </page>
+                            <page string="History">
+                                <separator string="Interventions" />
+                                <field name="interventions" nolabel='1' />
+                            </page>
+                            <page string="Additional Information">
+                                <separator string="Notes" />
+                                <field name="note" />
+                            </page>
+                            <page string="Advanced options">
+                                <button name="installation_active" string="Activate" type="object" states="inactive" class="oe_highlight"/>
+                                <button name="installation_inactive" string="Deactivate" type="object" states="active" class="oe_highlight"/>
+                            </page>
+                        </notebook>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+        
+        
+        <!--INTERVENTIONS VIEWS -->
+        <record id="view_maintenance_intervention_search" model="ir.ui.view">
+            <field name="name">maintenance.intervention.search</field>
+            <field name="model">maintenance.intervention</field>
+            <field name="type">search</field>
+            <field name="arch" type="xml">
+                <search string="Interventions">
+                    <group>
+                        <field name="code" />
+                        <field name="name" />
+                        <field name="installation_id" />
+                        <field name="state" />
+                    </group>
+                </search>
+            </field>
+        </record>
+        
+        <record id="view_maintenance_intervention_tree" model="ir.ui.view">
+            <field name="name">maintenance.intervention.tree</field>
+            <field name="model">maintenance.intervention</field>
+            <field name="type">tree</field>
+            <field name="arch" type="xml">
+                <tree string="Maintenance intervention">
+                    <field name="code" />
+                    <field name="intervention_type_id" />
+                    <field name="time_planned" />
+                    <field name="date_scheduled" />
+                    <field name="installation_id" />
+                    <field name="state" />
+                </tree>
+            </field>
+        </record>
+        
+        <record id="view_maintenance_intervention_form" model="ir.ui.view">
+            <field name="name">maintenance.intervention.form</field>
+            <field name="model">maintenance.intervention</field>
+            <field name="type">form</field>
+            <field name="arch" type="xml">
+                <form string="Intervention">
+                    <header>
+                        <button name="action_cancel" type="object" string="Cancel" states="draft,confirmed" groups="maintenance.group_maintenance_manager"/>
+                        <button name="action_confirm" type="object" string="Confirm" states="draft" groups="maintenance.group_maintenance_manager" class="oe_highlight"/>
+                        <button name="action_done" type="object" string="Done" states="confirmed" class="oe_highlight"/>
+                        <button name="print_intervention" string="Print" type="object" class="oe_highlight" groups="maintenance.group_maintenance_user"/>
+                        <field name="state" widget="statusbar" statusbar_visible="draft,confirmed,done" statusbar_colors='{"confirmed":"blue"}'/>
+                    </header>
+                    <sheet>
+                        <h1>
+                            <label class="oe_edit_only" for="code" string="Reference"/>
+                            <field name="code" class="oe_inline"/>
+                        </h1>
+                        <div class="oe_right oe_button_box">
+                        </div>
+                        <group>
+                            <group>
+                                <field name="intervention_type_id" widget="selection" />
+                                <field name="date_scheduled" />
+                                <field name="time_planned" widget="float_time" />
+                            </group>
+                            <group> 
+                                <field name="installation_id" />
+                                <field name="partner_id" invisible="1" />
+                                <field name="contact_address_id" 
+                                    domain="[('parent_id','=',partner_id)]" 
+                                    context="{'default_parent_id':partner_id,'default_company_type':'person'}"
+                                    />
+                            </group>
+                            <group>
+                                <separator string="Description"/>
+                                <field name="name" colspan="4" nolabel="1"/>
+                            </group>
+                        </group>
+                        <notebook>
+                            <page string="Content">
+                                <field name="intervention_lines" nolabel="1">
+                                    <form>
+                                        <group>
+                                            <field name="product_id" />
+                                            <field name="product_uom_qty" />
+                                        </group>
+                                        <group>
+                                            <field name="price_unit" />
+                                        </group>
+                                        <group>
+                                            <field name="maintenance_element_id"
+                                                domain="[('installation_id','=',parent.installation_id)]" />
+                                        </group>
+                                    </form>
+                                    <tree string="Spare parts">
+                                        <field name="product_id" />
+                                        <field name="product_uom_qty" />
+                                        <field name="price_unit" />
+                                        <field name="maintenance_element_id" />
+                                    </tree>
+                                </field>
+                            </page>
+                            <page string="Achievement">
+                                <field name="intervention_tasks" nolabel="1">
+                                    <form>
+                                        <separator string="Task" />
+                                        <group>
+                                            <field name="user_id" string="Technician" />
+                                            <field name="name" />
+                                        </group>
+                                        <separator string="Scheduling" />
+                                        <group>
+                                            <field name="date_start" string="Beginning of task" />
+                                            <field name="date_end" string="End of task" />
+                                        </group>
+                                    </form>
+                                    <tree string="Tasks">
+                                        <field name="user_id" string="Technician" />
+                                        <field name="name" />
+                                        <field name="date_start" string="Beginning of task" />
+                                        <field name="date_end" string="End of task" />
+                                    </tree>
+                                </field>
+                            </page>
+                            <page string="Comments">
+                                <separator string="External comment"/>
+                                <field name="external_comment" colspan="4" nolabel="1"/>                         
+                                <separator string="Internal comment"/>
+                                <field name="internal_comment" colspan="4" nolabel="1"/>
+                            </page>
+                        </notebook>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+        
+        
+        <!-- INTERVENTION TYPE VIEWS -->
+        <record id="view_maintenance_intervention_type_form" model="ir.ui.view">
+            <field name="name">maintenance.intervention.type.form</field>
+            <field name="model">maintenance.intervention.type</field>
+            <field name="type">form</field>
+            <field name="arch" type="xml">
+                <form string="Maintenance intervention type">
+                    <sheet>
+                        <h1>
+                            <label string="Type : "/><field name="name" class="oe_inline"/>
+                        </h1>
+                        <group>
+                            <field name="color" />
+                            <field name="workforce_product_id" />
+                            <field name="workforce_product_duration" widget="float_time" />
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+        
+        
+        <!-- ACTIONS -->
+        <record id="action_maintenance_installation" model="ir.actions.act_window">
+            <field name="name">Installations</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">maintenance.installation</field>
+            <field name="context">{"search_default_state":'active'}</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+            <field name="help">All maintenance installations</field>
+        </record>
+        
+        <record id="action_maintenance_intervention" model="ir.actions.act_window">
+            <field name="name">Interventions</field>
+            <field name="search_view_id" ref="view_maintenance_intervention_search" />
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">maintenance.intervention</field>
+            <field name="context">{'maintenance_intervention':True}</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+            <field name="context">{}</field>
+            <field name="help">All maintenance interventions</field>
+        </record>
+        
+        <record id="action_maintenance_intervention_type" model="ir.actions.act_window">
+            <field name="name">Intervention types</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">maintenance.intervention.type</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+            <field name="context">{}</field>
+            <field name="help">Types of intervention</field>
+        </record>
+        
+        <!-- MAINTENANCE MENU -->
+        <menuitem id="menu_maintenance" name="Maintenance"
+            sequence="30" />
+        <menuitem id="menu_maintenance_intervention" parent="menu_maintenance" 
+            name="Interventions" sequence="1" />
+        <menuitem action="action_maintenance_intervention" id="menu_maintenance_intervention_intervention" 
+            parent="menu_maintenance_intervention" sequence="1" />
+        <menuitem id="menu_maintenance_installation" parent="menu_maintenance" 
+            name="Installations" sequence="2" />
+        <menuitem action="action_maintenance_installation" id="menu_maintenance_installation_installation"
+            parent="menu_maintenance_installation" sequence="1"/>
+        <menuitem id="menu_maintenance_config" parent="menu_maintenance" 
+            name="Configuration" sequence="999" />
+        <menuitem action="action_maintenance_intervention_type" id="menu_maintenance_intervention_type" parent="menu_maintenance_config" 
+            name="Intervention type" sequence="1" />
+    </data>
+</odoo>

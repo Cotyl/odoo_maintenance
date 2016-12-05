@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+    
+        <!-- REPORT -->
+    
+        <report
+            id="maintenance_interventions"
+            model="maintenance.intervention"
+            string="Intervention report"
+            report_type="qweb-pdf"
+            name="maintenance_base.report_maintenance_intervention"
+            file="maintenance_base.report_maintenance_intervention"
+        />
+        
+        <template id="maintenance_intervention_document">
+            <t t-call="report.external_layout">
+                <div class="page">
+                    <div class="oe_structure" />
+                    <div class="row">
+                        <div class="col-xs-6">
+                            <strong t-if="doc.installation_id.address_id">Intervention address:</strong>
+                            <div t-field="doc.installation_id.address_id" 
+                                t-field-options='{"widget": "contact", "fields": ["address", "name", "phone", "fax"], "no_marker": true}'/>
+                        </div>
+                        <div class="dest_address">
+                            <div t-field="doc.partner_id"
+                                t-field-options='{"widget": "contact", "fields": ["address", "name"], "no_marker": true}' />
+                        </div>
+                    </div>
+                    <h2>
+                        <span>Intervention </span>
+                        <span t-field="doc.code"/>
+                    </h2>
+                    <table class="table table-bordered"  name="intervention_tasks">
+                        <thead>
+                            <tr style="background-color:lightgrey;">
+                                <th style="text-align:center;">Start Date</th>
+                                <th style="text-align:center;">End Date</th>
+                                <th style="text-align:center;">Time (h)</th>
+                                <th style="text-align:center;">Worker</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr t-foreach="doc.intervention_tasks" t-as="t">
+                                <td style="text-align:center;"><span t-field="t.date_start"/></td>
+                                <td style="text-align:center;"><span t-field="t.date_end"/></td>
+                                <td style="text-align:center;"><span t-field="t.duration_str" /></td>
+                                <td style="text-align:center;"><span t-field="t.user_id.name"/></td>                
+                            </tr>               
+                        </tbody>
+                    </table>
+                    <h4>Spare parts</h4>
+                    <table class="table table-bordered"  name="spare_parts">
+                        <thead>
+                                <tr style="background-color:lightgrey;">
+                                    <th style="text-align:center;">Quantity</th>
+                                    <th style="text-align:center;">Product Name</th>
+                                    <th style="text-align:center;">Maintenance Element</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr t-foreach="doc.intervention_lines" t-as="l">
+                                    <td style="text-align:center;"><span t-field="l.product_uom_qty"/></td>
+                                    <td style="text-align:center;"><span t-field="l.name"/></td>
+                                    <td style="text-align:center;"><span t-field="l.maintenance_element_id"/></td>
+                                </tr>               
+                            </tbody>
+                    </table>
+                    <h4>Worker Comments</h4>
+                    <table class="table table-bordered"  name="intervention_comment">
+                        <thead>
+                            <tr style="background-color:lightgrey;">
+                                <th style="text-align:center;">Comment</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><span t-field="doc.external_comment"/></td>
+                            </tr>
+                        
+                        </tbody>
+                    </table>
+                    <h4>Customer</h4>
+                    <table class="table table-bordered"  name="intervention_sign">
+                        <thead>
+                            <tr style="background-color:lightgrey;">
+                                <th style="text-align:center;">Name</th>
+                                <th style="text-align:center;">Signature</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr style="height:100px;">
+                                <td></td>
+                                <td></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </t>
+        </template>
+        
+        <template id="report_maintenance_intervention">
+            <t t-foreach="docs" t-as="doc">
+                <t t-call="maintenance_base.maintenance_intervention_document" t-lang="doc.partner_id.lang"/>
+            </t>
+        </template>
+        
+    </data>
+</odoo>

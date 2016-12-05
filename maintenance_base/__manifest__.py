@@ -16,7 +16,6 @@
             'data/maintenance_base_data.xml', 
             'views/maintenance_base_view.xml', 
             'report/maintenance_base_report.xml', 
-            'report/maintenance_base_report_template.xml'
     ],
     'demo': [
     ],

@@ -5,7 +5,7 @@ Created on 25 oct. 2016
 '''
 
 from odoo import models, fields, api
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, time
 from odoo.tools import DEFAULT_SERVER_DATETIME_FORMAT as DTF
 import pytz
 
@@ -153,6 +153,8 @@ class maintenance_intervention_task(models.Model):
     user_id = fields.Many2one('res.users', 'Assigned to')
     date_start = fields.Datetime('Starting Date',index=True,default=lambda self: self._get_default_date_start())
     date_end = fields.Datetime('Ending Date',index=True,default=lambda self: self._get_default_date_end())
+    duration = fields.Float('Duration (h)', compute='get_duration', readonly=1)
+    duration_str = fields.Text('Duration (h)', compute='get_duration_str', readonly=1)
     
     @api.model
     def _get_default_date_start(self):
@@ -203,9 +205,25 @@ class maintenance_intervention_task(models.Model):
         vals['product_uom_qty'] = self.get_quantity_from_date(vals['date_start'], vals['date_end'], intervention.intervention_type_id.workforce_product_duration) 
         return super(maintenance_intervention_task, self).create(vals)
     
-    def get_quantity_from_date(self, date_start, date_end, workforce_product_duration):
-        if not date_start or not date_end or not workforce_product_duration:
+    @api.multi
+    def get_duration(self):
+        for task in self:
+            task.duration = self.get_duration_from_date(task.date_start,task.date_end)
+            
+    @api.multi
+    def get_duration_str(self):
+        for task in self:   
+            task.duration_str = str(timedelta(seconds=task.duration*3600))[:-3]
+    
+                
+    def get_duration_from_date(self, date_start, date_end):
+        if not date_start or not date_end:
             return 0
         date_start = datetime.strptime(date_start, DTF)
         date_end = datetime.strptime(date_end, DTF)
-        return ((date_end-date_start).seconds/3600) / workforce_product_duration
+        return (date_end-date_start).seconds/3600.
+    
+    def get_quantity_from_date(self, date_start, date_end, workforce_product_duration):
+        if not workforce_product_duration:
+            return 0
+        return self.get_duration_from_date(date_start, date_end) / workforce_product_duration

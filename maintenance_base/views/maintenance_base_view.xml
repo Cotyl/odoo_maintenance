@@ -1,6 +1,40 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <data>
+        <!-- MAINTENANCE ELEMENT VIEWS -->
+        <record id="view_maintenance_element_form" model="ir.ui.view">
+            <field name="name">maintenance.element.form</field>
+            <field name="model">maintenance.element</field>
+            <field name="type">form</field>
+            <field name="arch" type="xml">
+                <form string="Element">
+                    <header>
+                        <field name="state" widget="statusbar" />
+                    </header>
+                    <sheet>
+                        <div class="oe_title">
+                            <label for="name" string="Name" class="oe_edit_only"/>
+                            <h1><field name="name" /></h1>
+                        </div>
+                        <group>
+                            <field name="installation_id" />
+                            <field name="description" />
+                            
+                            <field name="serial_number" />
+                            <field name="installation_date" />
+                            <field name="warranty_date" />
+                            <field name="location" />
+                        
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+        
+        
+        
+        
+    
         <!-- MAINTENANCE INSTALLATION VIEWS -->
         <record id="view_maintenance_installation_tree" model="ir.ui.view">
             <field name="name">maintenance.installation.tree</field>
@@ -27,7 +61,7 @@
                     <sheet>
                         <div class="oe_title">
                             <label for="code" string="Reference" class="oe_edit_only"/>
-                            <h1><field name="code"/></h1>
+                            <h1><field name="code" /></h1>
                         </div>
                         <div class="oe_right oe_button_box">
                         </div>
@@ -38,7 +72,6 @@
                                     context="{'default_company_type':'company'}" 
                                     domain="[('is_company','=',True)]" 
                                     />
-                                <field name="contact_address_id" context="{'default_parent_id':partner_id,'default_company_type':'person'}" />
                             </group>
                         </group>
                         
@@ -48,33 +81,33 @@
                             <page string="Content">
                                 <separator string="Elements" />
                                 <field name="elements" nolabel='1'>
-                                    <tree string="Maintenance Element">
-                                        <field name="code" />
+                                    <tree string="Maintenance Element" colors="grey:state=='inactive'">
                                         <field name="name" />
-                                        <field name="product_id" />
                                         <field name="installation_date" />
                                         <field name="warranty_date" />
+                                        <field name="state" invisible="1" />
                                     </tree>
                                     
-                                    <form string="Maintenance Element">
+                                    <form string="Element">
+                                        <div class="oe_title">
+                                            <label for="name" string="Name" class="oe_edit_only"/>
+                                            <h1><field name="name" /></h1>
+                                        </div>
+                                        <newline />
+                                        <group>
+                                            <field name="description" />
+                                        </group>
+                                        <newline />
                                         <group>
                                             <group>
-                                                <field name="code" />
-                                                <field name="name" />
+                                                <field name="serial_number" />
+                                                <field name="location" />                          
                                             </group>
-        
                                             <group>
                                                 <field name="installation_date" />
                                                 <field name="warranty_date" />
-                                                <field name="location" />
+                                                <field name="state" />
                                             </group>
-                                        </group>
-                                        <separator string="Product"/>
-                                        <group>
-                                            <field name="product_id" />
-                                        </group>
-                                        <group>
-                                            <field name="description" />
                                         </group>
                                     </form>
                                 </field>
@@ -86,6 +119,9 @@
                             <page string="Additional Information">
                                 <separator string="Notes" />
                                 <field name="note" />
+                                <group>
+                                    <field name="contact_address_id" domain="[('parent_id','=',partner_id),('is_company','=',True)]" context="{'default_parent_id':partner_id,'default_company_type':'person'}" />
+                                </group>
                             </page>
                             <page string="Advanced options">
                                 <button name="installation_active" string="Activate" type="object" states="inactive" class="oe_highlight"/>
@@ -138,10 +174,11 @@
             <field name="arch" type="xml">
                 <form string="Intervention">
                     <header>
-                        <button name="action_cancel" type="object" string="Cancel" states="draft,confirmed" groups="maintenance.group_maintenance_manager"/>
-                        <button name="action_confirm" type="object" string="Confirm" states="draft" groups="maintenance.group_maintenance_manager" class="oe_highlight"/>
-                        <button name="action_done" type="object" string="Done" states="confirmed" class="oe_highlight"/>
-                        <button name="print_intervention" string="Print" type="object" class="oe_highlight" groups="maintenance.group_maintenance_user"/>
+                        <button name="action_confirm" type="object" string="Confirm" states="draft" class="oe_highlight"/>
+                        <button name="action_done" type="object" string="Done" states="confirmed,planned" class="oe_highlight"/>
+                        <button name="action_draft" type="object" string="Reset" states="cancel" class="oe_highlight"/>
+                        <button name="action_cancel" type="object" string="Cancel" states="draft,confirmed,planned,done" />
+                        <button name="print_intervention" string="Print" type="object" />
                         <field name="state" widget="statusbar" statusbar_visible="draft,confirmed,done" statusbar_colors='{"confirmed":"blue"}'/>
                     </header>
                     <sheet>
@@ -183,7 +220,9 @@
                                         </group>
                                         <group>
                                             <field name="maintenance_element_id"
-                                                domain="[('installation_id','=',parent.installation_id)]" />
+                                                domain="[('installation_id','=',parent.installation_id),('state','=','active')]" 
+                                                context="{'default_installation_id':parent.installation_id}"
+                                                />
                                         </group>
                                     </form>
                                     <tree string="Spare parts">
